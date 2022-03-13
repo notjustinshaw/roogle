@@ -263,6 +263,20 @@ impl<T: Clone> LinkedList<T> {
         self.num_elements = 0;
     }
 
+    /// Returns `true` if the list contains no elements.
+    /// 
+    /// # Example
+    /// ```
+    /// # use roogle::collections::linked_list::LinkedList;
+    /// let mut list: LinkedList<u32> = LinkedList::new();
+    /// assert!(list.is_empty());
+    /// list.push_back(1);
+    /// assert!(!list.is_empty());
+    /// ```
+    pub fn is_empty(&self) -> bool {
+        self.num_elements == 0
+    }
+
     /// Returns an iterator over the list.
     ///
     /// # Example
