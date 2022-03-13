@@ -28,7 +28,7 @@ impl<T: Clone> LinkedList<T> {
     /// ```
     /// # use roogle::collections::linked_list::LinkedList;
     /// let list: LinkedList<u32> = LinkedList::new();
-    /// assert_eq!(list.size(), 0);
+    /// assert_eq!(list.len(), 0);
     /// ```
     pub fn new() -> Self {
         LinkedList {
@@ -45,19 +45,19 @@ impl<T: Clone> LinkedList<T> {
     /// ```
     /// # use roogle::collections::linked_list::LinkedList;
     /// let mut list: LinkedList<u32> = LinkedList::new();
-    /// assert_eq!(list.size(), 0);
+    /// assert_eq!(list.len(), 0);
     /// list.push_front(1);
     /// list.push_front(2);
     /// list.push_front(3);
-    /// assert_eq!(list.size(), 3);
+    /// assert_eq!(list.len(), 3);
     /// list.pop_front();
     /// list.pop_front();
     /// list.pop_front();
-    /// assert_eq!(list.size(), 0);
+    /// assert_eq!(list.len(), 0);
     /// assert_eq!(list.pop_front(), None);
     /// assert_eq!(list.pop_back(), None);
     /// ```
-    pub fn size(&self) -> u64 {
+    pub fn len(&self) -> u64 {
         self.num_elements
     }
 
@@ -69,9 +69,9 @@ impl<T: Clone> LinkedList<T> {
     /// # use roogle::collections::linked_list::LinkedList;
     /// let mut list: LinkedList<u32> = LinkedList::new();
     /// list.push_front(1);
-    /// assert_eq!(list.size(), 1);
+    /// assert_eq!(list.len(), 1);
     /// list.push_front(2);
-    /// assert_eq!(list.size(), 2);
+    /// assert_eq!(list.len(), 2);
     /// ```
     pub fn push_front(&mut self, value: T) {
         let new_node: ListNode<T> = ListNode::from(value);
@@ -101,7 +101,7 @@ impl<T: Clone> LinkedList<T> {
     /// let mut list: LinkedList<u32> = LinkedList::new();
     /// list.push_front(1);
     /// list.push_front(2);
-    /// assert_eq!(list.size(), 2);
+    /// assert_eq!(list.len(), 2);
     /// assert_eq!(list.pop_front(), Some(2));
     /// assert_eq!(list.pop_front(), Some(1));
     /// assert_eq!(list.pop_front(), None);
@@ -129,11 +129,11 @@ impl<T: Clone> LinkedList<T> {
     /// ```
     /// use roogle::collections::linked_list::LinkedList;
     /// let mut list: LinkedList<u32> = LinkedList::new();
-    /// assert_eq!(list.size(), 0);
+    /// assert_eq!(list.len(), 0);
     /// list.push_back(1);
-    /// assert_eq!(list.size(), 1);
+    /// assert_eq!(list.len(), 1);
     /// list.push_back(2);
-    /// assert_eq!(list.size(), 2);
+    /// assert_eq!(list.len(), 2);
     /// ```
     pub fn push_back(&mut self, value: T) {
         let new_node: ListNode<T> = ListNode::from(value);
@@ -161,7 +161,7 @@ impl<T: Clone> LinkedList<T> {
     /// let mut list: LinkedList<u32> = LinkedList::new();
     /// list.push_front(1);
     /// list.push_front(2);
-    /// assert_eq!(list.size(), 2);
+    /// assert_eq!(list.len(), 2);
     /// assert_eq!(list.pop_back(), Some(1));
     /// assert_eq!(list.pop_back(), Some(2));
     /// assert_eq!(list.pop_back(), None);
@@ -199,11 +199,11 @@ impl<T: Clone> LinkedList<T> {
     /// list.push_back(2);
     /// list.push_back(3);
     ///
-    /// assert_eq!(list.size(), 3); // list -> 1 -> 2 -> 3
+    /// assert_eq!(list.len(), 3); // list -> 1 -> 2 -> 3
     ///
     /// list.retain(|x| x % 2 == 0); // list -> 2
     ///
-    /// assert_eq!(list.size(), 1);
+    /// assert_eq!(list.len(), 1);
     /// assert_eq!(list.pop_front(), Some(2));
     /// assert_eq!(list.pop_front(), None);
     /// assert_eq!(list.pop_back(), None);
@@ -242,6 +242,27 @@ impl<T: Clone> LinkedList<T> {
         }
     }
 
+    /// Clears the linked list, removing all values.
+    /// 
+    /// # Example
+    /// ```
+    /// # use roogle::collections::linked_list::LinkedList;
+    /// let mut list: LinkedList<u32> = LinkedList::new();
+    /// list.push_back(1);
+    /// list.push_back(2);
+    /// list.push_back(3);
+    /// assert_eq!(list.len(), 3);
+    /// list.clear();
+    /// assert_eq!(list.len(), 0);
+    /// assert_eq!(list.pop_front(), None);
+    /// assert_eq!(list.pop_back(), None);
+    /// ```
+    pub fn clear(&mut self) {
+        self.head = None;
+        self.tail = None;
+        self.num_elements = 0;
+    }
+
     /// Returns an iterator over the list.
     ///
     /// # Example
@@ -255,7 +276,7 @@ impl<T: Clone> LinkedList<T> {
     /// list.push_front(2);
     /// list.push_front(3);
     ///
-    /// assert_eq!(list.size(), 3);
+    /// assert_eq!(list.len(), 3);
     ///
     /// let mut iter = list.iter();
     ///
@@ -264,7 +285,7 @@ impl<T: Clone> LinkedList<T> {
     /// assert_eq!(iter.next(), Some(1));
     ///
     /// assert_eq!(iter.next(), None);
-    /// assert_eq!(list.size(), 3);
+    /// assert_eq!(list.len(), 3);
     /// ```
     pub fn iter(&self) -> ListIter<T> {
         ListIter {
