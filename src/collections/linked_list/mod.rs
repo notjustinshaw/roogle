@@ -214,12 +214,12 @@ impl<T: Clone> LinkedList<T> {
             let node = curr.borrow();
             if !f(&node.data) {
                 // We're removing the front: update head pointer
-                if let None = node.prev {
+                if node.prev.is_none() {
                     self.head = node.next.clone();
                 }
 
                 // We're removing the tail: update tail pointer
-                if let None = node.next {
+                if node.next.is_none() {
                     self.tail = curr
                         .borrow()
                         .prev
@@ -243,7 +243,7 @@ impl<T: Clone> LinkedList<T> {
     }
 
     /// Clears the linked list, removing all values.
-    /// 
+    ///
     /// # Example
     /// ```
     /// # use roogle::collections::linked_list::LinkedList;
@@ -264,7 +264,7 @@ impl<T: Clone> LinkedList<T> {
     }
 
     /// Returns `true` if the list contains no elements.
-    /// 
+    ///
     /// # Example
     /// ```
     /// # use roogle::collections::linked_list::LinkedList;
@@ -275,6 +275,35 @@ impl<T: Clone> LinkedList<T> {
     /// ```
     pub fn is_empty(&self) -> bool {
         self.num_elements == 0
+    }
+
+    /// Returns a reference to an element at the given index or `None` if the
+    /// index is out of bounds.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// # use roogle::collections::linked_list::LinkedList;
+    /// let mut list: LinkedList<u32> = LinkedList::new();
+    /// list.push_back(1);
+    /// list.push_back(2);
+    /// list.push_back(3);
+    ///
+    /// assert_eq!(list.get(0), Some(1));
+    /// assert_eq!(list.get(1), Some(2));
+    /// assert_eq!(list.get(2), Some(3));
+    /// assert_eq!(list.get(3), None);
+    /// ```
+    pub fn get(&self, index: u64) -> Option<T> {
+        if index >= self.num_elements {
+            return None;
+        }
+
+        let mut current = self.head.clone();
+        for _ in 0..index {
+            current = current.unwrap().borrow().next.clone();
+        }
+        Some(current.unwrap().borrow().data.clone())
     }
 
     /// Returns an iterator over the list.
