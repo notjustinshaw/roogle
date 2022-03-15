@@ -15,7 +15,7 @@ impl<T: Clone> Iterator for ListIter<T> {
   /// Returns the next element of the list.
   fn next(&mut self) -> Option<Self::Item> {
     self.current.take().map(|old: StrongPointer<ListNode<T>>| {
-      self.current = old.borrow_mut().next.take();
+      self.current = old.borrow().next.clone();
       old.borrow().data.clone()
     })
   }
