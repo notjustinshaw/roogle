@@ -6,9 +6,12 @@ pub use list_iter::ListIter;
 pub use list_node::ListNode;
 pub use list_node::StrongPointer;
 
+use core::fmt;
 use core::marker::PhantomData; // for cursors
 use std::cell::RefCell;
 use std::clone::Clone;
+use std::fmt::Display;
+use std::fmt::Formatter;
 use std::rc::Rc;
 
 // A doubly-linked list.
@@ -350,8 +353,21 @@ impl<T: Clone> LinkedList<T> {
     /// ```
     pub fn iter(&self) -> ListIter<T> {
         ListIter {
-            current: self.head.as_ref().map(|node| node.clone()),
+            current: &self.head,
             marker: PhantomData,
         }
+    }
+}
+
+impl<T: Clone + Display> Display for LinkedList<T> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        let mut iter = self.iter();
+        if let Some(data) = iter.next() {
+            write!(f, "{}", data)?;
+            while let Some(data) = iter.next() {
+                write!(f, " -> {}", data)?;
+            }
+        }
+        Ok(())
     }
 }

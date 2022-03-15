@@ -23,9 +23,9 @@ use std::rc::{Rc, Weak};
 /// StrongPointer - a single-threaded reference-counted pointer to a node.
 /// WeakPointer - a version of rc that holds a non-owning reference to the node.
 pub struct ListNode<T: Clone> {
-    pub data: T,
-    pub next: Option<StrongPointer<ListNode<T>>>,
-    pub prev: Option<WeakPointer<ListNode<T>>>,
+    data: T,
+    next: Option<StrongPointer<ListNode<T>>>,
+    prev: Option<WeakPointer<ListNode<T>>>,
 }
 
 pub type StrongPointer<T> = Rc<RefCell<T>>;
