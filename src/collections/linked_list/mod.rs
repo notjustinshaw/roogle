@@ -288,40 +288,22 @@ impl<T: Clone> LinkedList<T> {
     /// list.push_back(1);
     /// list.push_back(2);
     /// list.push_back(3);
-    /// list.push_back(4);
-    /// list.push_back(5);
     ///
     /// assert_eq!(list.get(0), Some(1));
     /// assert_eq!(list.get(1), Some(2));
     /// assert_eq!(list.get(2), Some(3));
-    /// assert_eq!(list.get(3), Some(4));
-    /// assert_eq!(list.get(4), Some(5));
-    /// assert_eq!(list.get(5), None);
+    /// assert_eq!(list.get(3), None);
     /// ```
     pub fn get(&self, index: u64) -> Option<T> {
         if index >= self.num_elements {
             return None;
         }
 
-        // Figure out which end is closer to the index
-        if index < self.num_elements / 2 {
-            let mut current = self.head.clone();
-            for _ in 0..index {
-                current = current.unwrap().borrow().next.clone();
-            }
-            Some(current.unwrap().borrow().data.clone())
-        } else {
-            let mut current = self.tail.clone();
-            for _ in 0..(self.num_elements - index - 1) {
-                current = current
-                    .unwrap()
-                    .borrow()
-                    .prev
-                    .as_ref()
-                    .map(|prev| prev.upgrade().unwrap());
-            }
-            Some(current.unwrap().borrow().data.clone())
+        let mut current = self.head.clone();
+        for _ in 0..index {
+            current = current.unwrap().borrow().next.clone();
         }
+        Some(current.unwrap().borrow().data.clone())
     }
 
     /// Returns an iterator over the list.
