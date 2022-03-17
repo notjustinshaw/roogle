@@ -7,8 +7,6 @@ pub fn bubble_sort<T: Clone + Display>(
     list: &mut LinkedList<T>,
     mut compare: impl FnMut(&T, &T) -> bool,
 ) {
-    print_reverse(list.tail.as_ref(), 10);
-    println!();
     let len = list.len();
     for i in 0..len {
         for j in 0..len - i - 1 {
@@ -21,8 +19,6 @@ pub fn bubble_sort<T: Clone + Display>(
                 second.borrow_mut().next = Some(second.clone());
                 first.swap(&second);
             }
-            print_reverse(list.tail.as_ref(), 10);
-            println!();
         }
     }
 }
@@ -42,12 +38,12 @@ fn _print<T: Clone + Display>(list: &mut LinkedList<T>, max_depth: u32) {
 }
 
 // print with a cycle cap
-fn print_reverse<T: Clone + Display>(node: Option<&Rc<RefCell<ListNode<T>>>>, max_depth: u32) {
+fn _print_reverse<T: Clone + Display>(node: Option<&Rc<RefCell<ListNode<T>>>>, max_depth: u32) {
     if let Some(list_node) = node {
         if let None = list_node.borrow().prev {
             print!("{}", list_node.borrow().data);
         } else if max_depth > 0 {
-            print_reverse(
+            _print_reverse(
                 list_node.borrow().prev.as_ref().unwrap().upgrade().as_ref(),
                 max_depth - 1,
             );
