@@ -1,10 +1,11 @@
 pub mod list_iter;
-/// A doubly-linked list from hell >:)
 pub mod list_node;
+pub mod sort;
 
 pub use list_iter::ListIter;
 pub use list_node::ListNode;
 pub use list_node::StrongPointer;
+pub use sort::bubble_sort;
 
 use core::fmt;
 use core::marker::PhantomData; // for cursors
@@ -14,16 +15,16 @@ use std::fmt::Display;
 use std::fmt::Formatter;
 use std::rc::Rc;
 
-// A doubly-linked list.
-//
-// This `LinkedList` allows pushing and popping elements at either end.
-pub struct LinkedList<T: Clone> {
+/// A doubly-linked list from hell >:)
+///
+/// This `LinkedList` allows pushing and popping elements at either end.
+pub struct LinkedList<T: Clone + Display> {
     pub head: Option<StrongPointer<ListNode<T>>>,
     pub tail: Option<StrongPointer<ListNode<T>>>,
     num_elements: u64,
 }
 
-impl<T: Clone> LinkedList<T> {
+impl<T: Clone + Display> LinkedList<T> {
     // Creates an empty `LinkedList`.
     ///
     /// # Example
@@ -298,6 +299,10 @@ impl<T: Clone> LinkedList<T> {
     /// assert_eq!(list.get(3), None);
     /// ```
     pub fn get(&self, index: u64) -> Option<T> {
+        self.get_ptr(index).map(|ptr| ptr.borrow().data.clone())
+    }
+
+    pub(crate) fn get_ptr(&self, index: u64) -> Option<StrongPointer<ListNode<T>>> {
         if index >= self.num_elements {
             return None;
         }
@@ -306,7 +311,7 @@ impl<T: Clone> LinkedList<T> {
         for _ in 0..index {
             current = current.unwrap().borrow().next.clone();
         }
-        Some(current.unwrap().borrow().data.clone())
+        Some(current.unwrap())
     }
 
     /// Returns an iterator over the list.
@@ -338,6 +343,26 @@ impl<T: Clone> LinkedList<T> {
             current: self.head.as_ref().map(|node| node.clone()),
             marker: PhantomData,
         }
+    }
+
+    /// Sorts the list
+    ///
+    /// # Example
+    /// ```
+    /// use roogle::collections::linked_list::LinkedList;
+    /// use std::cmp::Ordering::Less;
+    /// let mut list: LinkedList<u32> = LinkedList::new();
+    /// list.push_back(1);
+    /// list.push_back(3);
+    /// list.push_back(2);
+    /// list.sort(|a, b| a > b);
+    /// assert_eq!(list.pop_front(), Some(1));
+    /// assert_eq!(list.pop_front(), Some(2));
+    /// assert_eq!(list.pop_front(), Some(3));
+    /// assert_eq!(list.pop_front(), None);
+    /// ```
+    pub fn sort(&mut self, compare: impl FnMut(&T, &T) -> bool) {
+        sort::bubble_sort(self, compare);
     }
 }
 

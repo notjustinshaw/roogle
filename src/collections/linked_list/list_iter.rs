@@ -1,15 +1,16 @@
 use core::marker::PhantomData;
+use std::fmt::Display;
 
 use super::{ListNode, StrongPointer};  // for cursors
 
 /// An immutable iterator over the elements of a `LinkedList`.
-pub struct ListIter<T: Clone> {
+pub struct ListIter<T: Clone + Display> {
   pub current: Option<StrongPointer<ListNode<T>>>,
   pub marker: PhantomData<ListNode<T>>,
 }
 
 /// Returns an iterator over the elements of the list.
-impl<T: Clone> Iterator for ListIter<T> {
+impl<T: Clone + Display> Iterator for ListIter<T> {
   type Item = T;
 
   /// Returns the next element of the list.

@@ -12,6 +12,7 @@
 
 use std::clone::Clone;
 use std::cell::RefCell;
+use std::fmt::Display;
 use std::rc::{Rc, Weak};
 
 /// The node type used to store data.
@@ -22,7 +23,7 @@ use std::rc::{Rc, Weak};
 ///
 /// StrongPointer - a single-threaded reference-counted pointer to a node.
 /// WeakPointer - a version of rc that holds a non-owning reference to the node.
-pub struct ListNode<T: Clone> {
+pub struct ListNode<T: Clone + Display> {
     pub data: T,
     pub next: Option<StrongPointer<ListNode<T>>>,
     pub prev: Option<WeakPointer<ListNode<T>>>,
@@ -35,7 +36,7 @@ type WeakPointer<T> = Weak<RefCell<T>>;
 // List Node - Core Implementation
 /////////////////////////////////////////////////////////////////////////
 
-impl<T: Clone> ListNode<T> {
+impl<T: Clone + Display> ListNode<T> {
     /// Creates a new node with the given value, next, and previous nodes.
     ///
     /// # Example
@@ -69,7 +70,7 @@ impl<T: Clone> ListNode<T> {
 ///
 /// The next and previous nodes are set to `None` and the data is cloned into
 /// the node. 
-impl<T: Clone> From<T> for ListNode<T> {
+impl<T: Clone + Display> From<T> for ListNode<T> {
     /// Creates a new node with the given value and no next or previous nodes.
     ///
     /// # Example
