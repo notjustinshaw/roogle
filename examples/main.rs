@@ -7,10 +7,13 @@ fn main() {
     list.push_back(4);
     list.push_back(5);
     list.push_back(3);
-
     println!("list len: {}", list.len());
-    list.sort(|a, b| a > b);
 
+    println!("unsorted list: {}", list);
+    list.sort(|a, b| a > b);
+    println!("sorted list: {}", list);
+
+    println!("\nremoving:");
     println!("{:?}", list.pop_back());
     println!("{:?}", list.pop_back());
     println!("{:?}", list.pop_back());
