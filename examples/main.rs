@@ -10,4 +10,10 @@ fn main() {
 
     println!("list len: {}", list.len());
     list.sort(|a, b| a > b);
+
+    println!("{:?}", list.pop_back());
+    println!("{:?}", list.pop_back());
+    println!("{:?}", list.pop_back());
+    println!("{:?}", list.pop_back());
+    println!("{:?}", list.pop_back());
 }

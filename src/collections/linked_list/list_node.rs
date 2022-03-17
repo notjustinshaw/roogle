@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 /// A doubly-linked generic node.
 ///
 /// In a doubly-linked list, each node stores a reference to the next and prev
@@ -9,9 +10,7 @@
 /// node (ie. a non-reference-counted pointer). This means that traversing the
 /// list backwards will require promoting each weak pointer to a reference-
 /// counted pointer.
-
 use std::clone::Clone;
-use std::cell::RefCell;
 use std::fmt::Display;
 use std::rc::{Rc, Weak};
 
@@ -69,9 +68,11 @@ impl<T: Clone + Display> ListNode<T> {
 /// Constructs a new ListNode with the given value.
 ///
 /// The next and previous nodes are set to `None` and the data is cloned into
-/// the node. 
+/// the node.
 impl<T: Clone + Display> From<T> for ListNode<T> {
     /// Creates a new node with the given value and no next or previous nodes.
+    ///
+    /// Takes ownership of the passed in value of type T.
     ///
     /// # Example
     /// ```
@@ -83,6 +84,6 @@ impl<T: Clone + Display> From<T> for ListNode<T> {
     /// assert!(node.prev.is_none());
     /// ```
     fn from(data: T) -> Self {
-        Self::new(data.clone(), None, None)
+        Self::new(data, None, None)
     }
 }
