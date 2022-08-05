@@ -1,4 +1,3 @@
-use std::cell::RefCell;
 /// A doubly-linked generic node.
 ///
 /// In a doubly-linked list, each node stores a reference to the next and prev
@@ -9,7 +8,8 @@ use std::cell::RefCell;
 /// to the next node, but the `prev` will only store a weak pointer to the prev
 /// node (ie. a non-reference-counted pointer). This means that traversing the
 /// list backwards will require promoting each weak pointer to a reference-
-/// counted pointer.
+/// counted pointer before traversing the list.
+use std::cell::RefCell;
 use std::clone::Clone;
 use std::fmt::Display;
 use std::rc::{Rc, Weak};
@@ -29,7 +29,7 @@ pub struct ListNode<T: Clone + Display> {
 }
 
 pub type StrongPointer<T> = Rc<RefCell<T>>;
-type WeakPointer<T> = Weak<RefCell<T>>;
+pub type WeakPointer<T> = Weak<RefCell<T>>;
 
 /////////////////////////////////////////////////////////////////////////
 // List Node - Core Implementation
@@ -41,7 +41,7 @@ impl<T: Clone + Display> ListNode<T> {
     /// # Example
     ///
     /// ```
-    /// # use roogle::collections::linked_list::ListNode;
+    /// # use roogle::collections::doubly_linked_list::ListNode;
     /// # use std::cell::RefCell;
     /// # use std::rc::{Rc, Weak};
     ///
@@ -76,7 +76,7 @@ impl<T: Clone + Display> From<T> for ListNode<T> {
     ///
     /// # Example
     /// ```
-    /// use roogle::collections::linked_list::ListNode;
+    /// use roogle::collections::doubly_linked_list::ListNode;
     ///
     /// let node: ListNode<u32> = ListNode::from(42);
     /// assert_eq!(node.data, 42);

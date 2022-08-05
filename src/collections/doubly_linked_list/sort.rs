@@ -1,18 +1,18 @@
-use std::{cell::RefCell, fmt::Display, rc::Rc};
+use std::{cell::RefCell, fmt::Display, rc::Rc, cmp::Ordering};
 
 use super::{LinkedList, ListNode};
 
 /// A really slow sort algorithm.
 pub fn bubble_sort<T: Clone + Display>(
     list: &mut LinkedList<T>,
-    mut compare: impl FnMut(&T, &T) -> bool,
+    mut compare: impl FnMut(&T, &T) -> Ordering,
 ) {
     let len = list.len();
     for i in 0..len {
         for j in 0..len - i - 1 {
             let first = list.get_ptr(j).unwrap();
             let second = list.get_ptr(j + 1).unwrap();
-            if compare(&first.borrow().data, &second.borrow().data) {
+            if compare(&first.borrow().data, &second.borrow().data) == Ordering::Greater {
                 second.borrow_mut().prev = first.borrow().prev.clone();
                 first.borrow_mut().prev = Some(Rc::downgrade(&first.clone()));
                 first.borrow_mut().next = second.borrow().next.clone();

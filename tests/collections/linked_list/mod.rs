@@ -1,4 +1,4 @@
-use roogle::collections::linked_list::LinkedList;
+use roogle::collections::doubly_linked_list::LinkedList;
 
 #[test]
 fn create_empty_list() {
