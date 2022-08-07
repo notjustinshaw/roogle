@@ -1,11 +1,14 @@
 use std::io;
 
-use roogle::query_processor::query_processor::QueryProcessor;
+use clap::Parser;
+use roogle::cli::CLI;
+use roogle::search_engine::query_processor::query_processor::QueryProcessor;
 
 fn main() {
+    let args = CLI::parse();
     println!("Welcome to Roogle!");
     eprint!("Indexing documents... ");
-    let qp = QueryProcessor::new("./assets/");
+    let qp = QueryProcessor::new("./assets/", args.stop_words);
     println!("done!");
     println!();
 

@@ -1,5 +1,5 @@
-use crate::indexer::doc_table::DocTable;
-use crate::indexer::mem_index::MemIndex;
+use crate::search_engine::indexer::doc_table::DocTable;
+use crate::search_engine::indexer::mem_index::MemIndex;
 use std::io::Result;
 
 /// Crawl over some resource (eg. the filesystem) and build an index of all

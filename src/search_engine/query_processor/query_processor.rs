@@ -1,24 +1,27 @@
 use crate::{
-    crawler::{crawler::Crawler, fs_crawler::FileSystemCrawler},
-    indexer::{doc_table::DocTable, mem_index::MemIndex},
+    search_engine::crawler::{crawler::Crawler, fs_crawler::FileSystemCrawler},
+    search_engine::indexer::{doc_table::DocTable, mem_index::MemIndex},
 };
 
 use super::query_result::QueryResult;
+use crate::search_engine::filters::stop_words::STOP_WORDS;
 
 /// Processes queries using inverted indices.
 pub struct QueryProcessor {
     pub(crate) doc_table: DocTable,
     pub(crate) mem_index: MemIndex,
+    stop_words: bool,
 }
 
 impl QueryProcessor {
     /// Creates a new query processor.
-    pub fn new(root: &str) -> Self {
-        let crawler = FileSystemCrawler::new(root);
+    pub fn new(root: &str, stop_words: bool) -> Self {
+        let crawler = FileSystemCrawler::new(root, stop_words);
         let (doc_table, mem_index) = crawler.crawl().expect("failed to crawl");
         Self {
             doc_table,
             mem_index,
+            stop_words,
         }
     }
 
@@ -34,7 +37,13 @@ impl QueryProcessor {
     /// matches the first query term once and the second query term twice.
     pub fn search(&self, query: &str) -> Vec<QueryResult> {
         let mut results: Vec<QueryResult> = Vec::new();
-        let mut terms = query.split_whitespace();
+        let terms = query.split_whitespace();
+
+        // Filter out terms that are stop words (if enabled).
+        let mut terms = terms.filter(|term| match self.stop_words {
+            true => !STOP_WORDS.contains(term),
+            false => true,
+        });
 
         // Handle the first term in the query separately since we don't need to
         // filter out documents that don't match previous terms.

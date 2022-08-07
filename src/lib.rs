@@ -1,3 +1,2 @@
-pub mod crawler;
-pub mod indexer;
-pub mod query_processor;
+pub mod search_engine;
+pub mod cli;

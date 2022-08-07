@@ -4,6 +4,8 @@ use std::fs::File;
 use std::io::{BufReader, Read, Result};
 use std::mem;
 
+use crate::search_engine::filters::stop_words::STOP_WORDS;
+
 /// An inverted index of word positions for a single document.
 ///
 /// The inverted index is a mapping from terms to a list of positions in the
@@ -52,12 +54,13 @@ impl DocIndex {
     ///
     /// # Arguments
     /// * `filename` - The name of the file to parse.
+    /// * `stop_words` - Whether to ignore stop words.
     ///
     /// # Errors
     /// * If the file cannot be opened, then an error is returned.
     /// * If the file contains invalid bytes, then an error is returned.
     /// * If a term cannot be parsed, then an error is returned.
-    pub fn from_file(filename: &str) -> Result<Self> {
+    pub fn from_file(filename: &str, stop_words: bool) -> Result<Self> {
         // Try to open the file for reading.
         let f = File::open(filename).expect("failed to open file");
         let reader = BufReader::new(f);
@@ -87,11 +90,16 @@ impl DocIndex {
                 let key = raw_key.trim_matches(is_punctuation);
                 // The start position of the word (protect against empty words)
                 let start = usize::saturating_sub(pos, key.len());
-                wordpos
-                    .index
-                    .entry(key.to_string())
-                    .or_insert(Vec::new())
-                    .push(start);
+
+                // If we're not excluding stop words or the word isn't a stop
+                // word, then add it to the inverted index.
+                if !stop_words || !STOP_WORDS.contains(key) {
+                    wordpos
+                        .index
+                        .entry(key.to_string())
+                        .or_insert(Vec::new())
+                        .push(start);
+                }
             }
             pos += 1;
         }
