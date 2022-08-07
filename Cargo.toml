@@ -8,3 +8,5 @@ edition = "2018"
 [dependencies]
 clap = { version = "3.2.15", features = ["derive"] }
 phf = { version = "0.11.0", features = ["macros"] }
+simple_logger = "2.2.0"
+log = "0.4"

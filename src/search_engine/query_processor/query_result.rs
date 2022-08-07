@@ -1,7 +1,8 @@
 use std::cmp::Ordering;
+use std::fmt::{Debug, Display};
 
 /// A result of a query.
-/// 
+///
 /// Contains the name and id of the document and its rank. The rank is the
 /// number of terms in the query that are also in the document.
 #[derive(Eq)]
@@ -14,7 +15,11 @@ pub struct QueryResult {
 impl QueryResult {
     /// Creates a new QueryResult.
     pub fn new(doc_id: usize, doc_name: String, rank: usize) -> Self {
-        Self { doc_id, doc_name, rank }
+        Self {
+            doc_id,
+            doc_name,
+            rank,
+        }
     }
 }
 
@@ -33,5 +38,17 @@ impl Ord for QueryResult {
 impl PartialOrd for QueryResult {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.rank.cmp(&other.rank))
+    }
+}
+
+impl Display for QueryResult {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "[{}] {} {}", self.doc_id, self.doc_name, self.rank)
+    }
+}
+
+impl Debug for QueryResult {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "[{}] {} {}", self.doc_id, self.doc_name, self.rank)
     }
 }

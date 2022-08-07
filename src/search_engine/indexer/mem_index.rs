@@ -20,7 +20,7 @@ impl MemIndex {
         }
     }
 
-    /// Adds a new document to the MemIndex.
+    /// Returns the number of terms in the index.
     pub fn num_terms(&self) -> usize {
         self.index.len()
     }
