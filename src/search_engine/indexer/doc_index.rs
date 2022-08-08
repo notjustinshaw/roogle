@@ -89,7 +89,7 @@ impl DocIndex {
                 let is_punctuation = |c: char| c.is_ascii_punctuation();
                 let key = raw_key.trim_matches(is_punctuation);
                 // The start position of the word (protect against empty words)
-                let start = usize::saturating_sub(pos, key.len());
+                let start = usize::saturating_sub(pos, chars.len());
 
                 // If we're not excluding stop words or the word isn't a stop
                 // word, then add it to the inverted index.

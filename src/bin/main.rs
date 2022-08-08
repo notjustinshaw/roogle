@@ -14,7 +14,7 @@ fn main() {
 
     eprint!("Indexing documents... ");
     let start_time = Instant::now();
-    let qp = QueryProcessor::new("./assets/", args.stop_words);
+    let qp = QueryProcessor::new("./assets/tiny", args.stop_words);
     let elapsed_sec = start_time.elapsed().as_secs_f64();
     println!("done!");
 
