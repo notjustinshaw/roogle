@@ -1,5 +1,3 @@
-use log::debug;
-
 use crate::{
     search_engine::crawler::{crawler::Crawler, fs_crawler::FileSystemCrawler},
     search_engine::indexer::{doc_table::DocTable, mem_index::MemIndex},
@@ -56,14 +54,12 @@ impl QueryProcessor {
     /// A phrase is matched based on the positions of each term in the phrase.
     pub fn search(&self, query: &str) -> Vec<QueryResult> {
         let tokens: Vec<QueryToken> = query_to_tokens(query, self.stop_words);
-        debug!("tokens: {:?}", tokens);
 
         // Search for each token individually.
         let mut meta_results: Vec<Vec<QueryResult>> = Vec::new();
         for token in tokens.iter() {
             meta_results.push(token.search(&self.mem_index, &self.doc_table));
         }
-        debug!("meta_results: {:?}", meta_results);
 
         // Intersect the results.
         let itr = meta_results.iter_mut();
@@ -72,7 +68,6 @@ impl QueryProcessor {
             acc
         }) {
             // Sort the results by rank (highest to lowest) then return them.
-            debug!("results: {:?}", results);
             results.sort_by(|a, b| b.cmp(a));
             results.to_vec()
         } else {

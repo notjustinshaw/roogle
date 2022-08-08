@@ -1,5 +1,3 @@
-use log::debug;
-
 use crate::search_engine::filters::stop_words::STOP_WORDS;
 use crate::search_engine::indexer::doc_table::DocTable;
 use crate::search_engine::indexer::mem_index::MemIndex;
@@ -181,59 +179,40 @@ fn handle_term(term: &str, index: &MemIndex, docs: &DocTable) -> Vec<QueryResult
 
 /// Handles search for a phrase.
 fn handle_phrase(phrase: &str, index: &MemIndex, docs: &DocTable) -> Vec<QueryResult> {
-    debug!("memindex: {}", index);
-
     let mut query_results: Vec<QueryResult> = Vec::new();
     let mut terms = phrase.split_whitespace().into_iter();
     let first_term = terms.next().unwrap();
 
     // Iterate over all the documents that contain the first term.
-    debug!("looking for first term: {}", first_term);
     if let Some(search_results) = index.search(first_term) {
         'outer: for (doc_id, doc_positions) in search_results {
             // Iterate over the positions of the first term in this document
-            debug!("  looking in document: {}", doc_id);
             let mut pos_iter = doc_positions.iter();
             let mut rank = doc_positions.len();
             let mut prev_term = first_term;
             'mid: while let Some(mut pos) = pos_iter.next().map(|off| *off) {
-                debug!("    looking at position: {}", pos);
-
                 // reset the iterator
                 terms = phrase.split_whitespace().into_iter();
                 terms.next(); // eat the first term
 
                 for next_term in terms.by_ref() {
                     // Get the positions of the next term in this document.
-                    debug!(
-                        "      looking for '{}' followed by '{}'",
-                        prev_term, next_term
-                    );
                     if let Some(sr) = index.search(next_term) {
                         if let Some(dp) = sr.get(&doc_id) {
                             let offset = pos + prev_term.len() + 1;
-                            debug!(
-                                "      looking for '{}' starting at offset {}",
-                                next_term, offset
-                            );
                             if dp.contains(&offset) {
-                                debug!("{} {} {}", doc_id, offset, next_term);
                                 rank += dp.len();
                                 pos = offset;
                                 prev_term = next_term;
                                 continue;
                             }
-                            debug!("      offset {} not found in {:?}", offset, dp);
                             continue 'mid;
                         }
-                        debug!("the term '{}' is not in document '{}'", next_term, doc_id);
                     }
                     // If we get here, then the phrase is not in this document.
-                    debug!("no results for term '{}'", next_term);
                     continue 'mid;
                 }
                 // We matched all the terms in the phrase!
-                debug!("yay");
                 let maybe_name = docs.get_name(*doc_id);
                 let name = maybe_name.expect("doc_id not found").to_string();
                 let qr = QueryResult::new(*doc_id, name, rank);
