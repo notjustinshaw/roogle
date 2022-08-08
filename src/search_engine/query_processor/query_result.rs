@@ -1,11 +1,13 @@
 use std::cmp::Ordering;
 use std::fmt::{Debug, Display};
 
+use crate::search_engine::indexer::doc_table::DocTable;
+
 /// A result of a query.
 ///
 /// Contains the name and id of the document and its rank. The rank is the
 /// number of terms in the query that are also in the document.
-#[derive(Eq)]
+#[derive(Clone, Eq)]
 pub struct QueryResult {
     pub doc_id: usize,
     pub doc_name: String,
@@ -19,6 +21,18 @@ impl QueryResult {
             doc_id,
             doc_name,
             rank,
+        }
+    }
+
+    /// Creates a new QueryResult from the docid and the rank.
+    pub fn from(doc_id: usize, postings: &Vec<usize>, doc_table: &DocTable) -> Self {
+        let maybe_name = doc_table.get_name(doc_id);
+        let name = maybe_name.expect("doc_id not found").to_string();
+        let roodrank = postings.len();
+        Self {
+            doc_id,
+            doc_name: name,
+            rank: roodrank,
         }
     }
 }

@@ -3,7 +3,11 @@ use crate::{
     search_engine::indexer::{doc_table::DocTable, mem_index::MemIndex},
 };
 
-use super::query_result::QueryResult;
+use super::{
+    intersect::Intersect,
+    query_result::QueryResult,
+    query_token::{query_to_tokens, QueryToken},
+};
 use crate::search_engine::filters::stop_words::STOP_WORDS;
 
 /// Processes queries using inverted indices.
@@ -45,37 +49,31 @@ impl QueryProcessor {
     /// For example, if the query is `steve "the hair" hairington`, then the
     /// search results will contain only documents that contain:
     /// * the term "steve"
-    /// * the phrase "the hair"
+    /// * the phrase "the hair" (the term "the" followed by the term "hair")
     /// * the term "hairington"
     ///
     /// A phrase is matched based on the positions of each term in the phrase.
     pub fn search(&self, query: &str) -> Vec<QueryResult> {
-        let mut results: Vec<QueryResult> = Vec::new();
-        let parsed_query: Vec<(&str, String)> = self.parse_query(query);
-        let mut terms = parsed_query.iter();
+        let tokens: Vec<QueryToken> = query_to_tokens(query, self.stop_words);
 
-        // Handle the first term in the query separately since we don't need to
-        // filter out documents that don't match previous terms.
-        if let Some((token_type, token)) = terms.next() {
-            match *token_type {
-                "term" => self.handle_leading_term(&mut results, token),
-                "phrase" => self.handle_leading_phrase(&mut results, token),
-                _ => panic!("unexpected token type"),
-            }
+        // Search for each token individually.
+        let mut meta_results: Vec<Vec<QueryResult>> = Vec::new();
+        for token in tokens.iter() {
+            meta_results.push(token.search(&self.mem_index, &self.doc_table));
         }
 
-        // Handle the remaining terms in the query.
-        for (token_type, token) in terms {
-            match *token_type {
-                "term" => self.handle_term(&mut results, token),
-                "phrase" => self.handle_phrase(&mut results, token),
-                _ => panic!("unexpected token type"),
-            }
+        // Intersect the results.
+        let itr = meta_results.iter_mut();
+        if let Some(results) = itr.reduce(|acc, next| {
+            acc.intersect(next);
+            acc
+        }) {
+            // Sort the results by rank (highest to lowest) then return them.
+            results.sort_by(|a, b| a.cmp(b));
+            results.to_vec()
+        } else {
+            Vec::new()
         }
-
-        // Sort the results by rank (highest to lowest) then return them.
-        results.sort_by(|a, b| b.cmp(a));
-        results
     }
 
     /// Parse the incoming query string.
@@ -90,11 +88,6 @@ impl QueryProcessor {
     /// * the term "hairington"
     ///
     /// A phrase is matched based on the positions of each term in the phrase.
-    /// In the above example, this method would return:
-    /// ```
-    /// [("term", "steve"), ("phrase", "the hair"), ("term", "hairington")]
-    /// ```
-    ///
     /// If the stop words filter is enabled, then stop words will be removed
     /// from the query.
     fn parse_query(&self, query: &str) -> Vec<(&str, String)> {
