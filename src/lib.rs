@@ -1,1 +1,2 @@
-pub mod collections;
+pub mod search_engine;
+pub mod cli;
