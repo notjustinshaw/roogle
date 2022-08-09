@@ -7,12 +7,16 @@ use std::fmt::{Debug, Display};
 
 use super::query_result::QueryResult;
 
+/// A token in a query.
+/// 
+/// A token is a word or phrase in a query.
 pub enum QueryToken {
     Term { value: String },
     Phrase { value: String },
 }
 
 impl QueryToken {
+    /// Adds a character to the token.
     pub fn push(&mut self, c: char) {
         match self {
             QueryToken::Term { value } => value.push(c),
@@ -20,6 +24,7 @@ impl QueryToken {
         }
     }
 
+    /// Returns whether the token is empty.
     pub fn is_empty(&self) -> bool {
         match self {
             QueryToken::Term { value } => value.is_empty(),
@@ -27,6 +32,11 @@ impl QueryToken {
         }
     }
 
+    /// Searches the index for results that match the given token.
+    /// 
+    /// For a term token, the index is searched for documents that contain
+    /// the term. For a phrase token, the index is searched for documents that
+    /// contain all the terms in the phrase and are in the correct order.
     pub fn search(&self, index: &MemIndex, docs: &DocTable) -> Vec<QueryResult> {
         match self {
             QueryToken::Term { value } => handle_term(value, index, docs),

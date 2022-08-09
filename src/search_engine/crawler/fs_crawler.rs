@@ -9,7 +9,9 @@ use crate::search_engine::indexer::mem_index::MemIndex;
 /// Crawls a filesystem and parses all files into an inverted index.
 pub struct FileSystemCrawler {
     /// The root directory to crawl.
-    pub(crate) root: String,
+    root: String,
+
+    /// Whether to index stop words.
     stop_words: bool,
 }
 
@@ -35,12 +37,12 @@ impl FileSystemCrawler {
         while let Some(dir) = stack.pop() {
             let mut entries = fs::read_dir(dir)?;
             while let Some(entry) = entries.next() {
-                let entry = entry?; // Unwrap the entry.
-                let path = entry.path();
+                let path = entry?.path();
+                let path_string: String = path.to_str().unwrap().to_string();
                 if path.is_dir() {
-                    stack.push(path.to_str().unwrap().to_string());
+                    stack.push(path_string);
                 } else {
-                    files.push(path.to_str().unwrap().to_string());
+                    files.push(path_string);
                 }
             }
         }
@@ -52,9 +54,9 @@ impl Crawler for FileSystemCrawler {
     fn crawl(&self) -> Result<(DocTable, MemIndex)> {
         let mut doc_table = DocTable::new();
         let mut mem_index = MemIndex::new();
-        for file in self.files()?.iter() {
-            let doc_index: DocIndex = DocIndex::from_file(file, self.stop_words)?;
-            let doc_id: usize = doc_table.add(file);
+        for file_name in self.files()?.iter() {
+            let doc_index: DocIndex = DocIndex::from_file(file_name, self.stop_words)?;
+            let doc_id: usize = doc_table.add(file_name);
             mem_index.add(doc_index, doc_id);
         }
         Ok((doc_table, mem_index))

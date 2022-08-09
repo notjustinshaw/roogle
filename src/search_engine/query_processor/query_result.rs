@@ -39,19 +39,25 @@ impl QueryResult {
 
 impl PartialEq for QueryResult {
     fn eq(&self, other: &Self) -> bool {
-        self.rank == other.rank
+        self.rank == other.rank && self.doc_id == other.doc_id
     }
 }
 
 impl Ord for QueryResult {
     fn cmp(&self, other: &Self) -> Ordering {
-        self.rank.cmp(&other.rank)
+        match self.rank.cmp(&other.rank) {
+            Ordering::Equal => self.doc_id.cmp(&other.doc_id),
+            other => other,
+        }
     }
 }
 
 impl PartialOrd for QueryResult {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.rank.cmp(&other.rank))
+        match self.rank.cmp(&other.rank) {
+            Ordering::Equal => Some(self.doc_id.cmp(&other.doc_id)),
+            other => Some(other),
+        }
     }
 }
 
