@@ -8,6 +8,13 @@ pub trait Intersect {
 
 impl Intersect for Vec<QueryResult> {
     fn intersect(&mut self, other: &Vec<QueryResult>) {
-        self.retain(|a: &QueryResult| other.iter().any(|b: &QueryResult| a.doc_id == b.doc_id));
+        self.retain_mut(|a: &mut QueryResult| other.iter().any(|b: &QueryResult| {
+            if a.doc_id == b.doc_id {
+                a.rank += b.rank;
+                true
+            } else {
+                false
+            }
+        }));
     }
 }

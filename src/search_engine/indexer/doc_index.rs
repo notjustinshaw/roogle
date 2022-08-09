@@ -70,41 +70,80 @@ impl DocIndex {
         let mut pos: usize = 0;
         let mut word: Vec<u8> = Vec::new();
         for maybe_byte in reader.bytes() {
-            let mut byte = maybe_byte.expect("failed to read byte");
-
-            // If the byte is *not* a whitespace character, then append it to
-            // our vector of bytes (the "word vector").
-            if !char::is_whitespace(byte as char) {
-                byte.make_ascii_lowercase();
-                word.push(byte);
-
-            // If the byte is a whitespace character, then we *might* have
-            // reached the end of a word (ie. the word vector is not empty)
-            } else if word.len() > 0 {
-                // To flush the word vector, replace it with an empty vector,
-                // then parse the old vector into a String, trim punctuation,
-                // and add it to the inverted index.
-                let chars: Vec<u8> = mem::replace(&mut word, Vec::new());
-                let raw_key = String::from_utf8_lossy(&chars);
-                let is_punctuation = |c: char| c.is_ascii_punctuation();
-                let key = raw_key.trim_matches(is_punctuation);
-                // The start position of the word (protect against empty words)
-                let start = usize::saturating_sub(pos, chars.len());
-
-                // If we're not excluding stop words or the word isn't a stop
-                // word, then add it to the inverted index.
-                if !stop_words || !STOP_WORDS.contains(key) {
-                    wordpos
-                        .index
-                        .entry(key.to_string())
-                        .or_insert(Vec::new())
-                        .push(start);
-                }
-            }
-            pos += 1;
+            let byte = maybe_byte.expect("failed to read byte");
+            handle_byte_alpha(byte, &mut word, &mut pos, stop_words, &mut wordpos);
         }
         Ok(wordpos)
     }
+}
+
+/// Splits words based on alphabetical characters.
+fn handle_byte_alpha(
+    mut byte: u8,
+    word: &mut Vec<u8>,
+    pos: &mut usize,
+    stop_words: bool,
+    wordpos: &mut DocIndex,
+) {
+    if byte.is_ascii_alphabetic() {
+        byte.make_ascii_lowercase();
+        word.push(byte);
+    } else if word.len() > 0 {
+        let chars: Vec<u8> = mem::replace(word, Vec::new());
+        let key = String::from_utf8_lossy(&chars);
+        let start = usize::saturating_sub(*pos, chars.len());
+
+        // If we're not excluding stop words or the word isn't a stop
+        // word, then add it to the inverted index.
+        if !stop_words || !STOP_WORDS.contains(&key) {
+            wordpos
+                .index
+                .entry(key.to_string())
+                .or_insert(Vec::new())
+                .push(start);
+        }
+    }
+    *pos += 1;
+}
+
+/// Splits words based on whitespace characters.
+fn _handle_byte_whitespace(
+    mut byte: u8,
+    word: &mut Vec<u8>,
+    pos: &mut usize,
+    stop_words: bool,
+    wordpos: &mut DocIndex,
+) {
+    // If the byte is *not* a whitespace character, then append it to
+    // our vector of bytes (the "word vector").
+    if !char::is_whitespace(byte as char) {
+        byte.make_ascii_lowercase();
+        word.push(byte);
+
+    // If the byte is a whitespace character, then we *might* have
+    // reached the end of a word (ie. the word vector is not empty)
+    } else if word.len() > 0 {
+        // To flush the word vector, replace it with an empty vector,
+        // then parse the old vector into a String, trim punctuation,
+        // and add it to the inverted index.
+        let chars: Vec<u8> = mem::replace(word, Vec::new());
+        let raw_key = String::from_utf8_lossy(&chars);
+        let is_punctuation = |c: char| c.is_ascii_punctuation();
+        let key = raw_key.trim_matches(is_punctuation);
+        // The start position of the word (protect against empty words)
+        let start = usize::saturating_sub(*pos, chars.len());
+
+        // If we're not excluding stop words or the word isn't a stop
+        // word, then add it to the inverted index.
+        if !stop_words || !STOP_WORDS.contains(key) {
+            wordpos
+                .index
+                .entry(key.to_string())
+                .or_insert(Vec::new())
+                .push(start);
+        }
+    }
+    *pos += 1;
 }
 
 impl Display for DocIndex {
